@@ -44,8 +44,6 @@ class ContactController extends Controller
 
     public function show(Contact $contact){
          try {    
-            $contact = Contact::select(['id', 'name', 'phone_number', 'email'])->first();
-
             $contactResource = new ContactResource($contact);
             return $contactResource->additional([
                 'success' => true,
