@@ -42,6 +42,36 @@ class ContactController extends Controller
         }
     }
 
+    public function show(Contact $contact){
+         try {    
+            $contact = Contact::select(['id', 'name', 'phone_number', 'email'])->first();
+
+            $contactResource = new ContactResource($contact);
+            return $contactResource->additional([
+                'success' => true,
+                'code' => 200,
+                'message' => 'Data retrieved successfully',
+            ]);
+
+        } catch (Exception $e) {
+            $isDebug = config('app.debug');
+
+            $response = [
+                'success' => false,
+                'message' => 'an error occurred while processing',
+                'code' => 500,
+                'errrors' => $e->getMessage()
+            ];
+
+            if ($isDebug) {
+                $response['errors'] = $e->getMessage();
+                $response['trace'] = $e->getTrace();
+            }
+
+            return response()->json($response, 500);
+        }
+    }
+
     public function store(StoreContactRequest $request ){
         try {    
             $contact = Contact::create($request->validated());
@@ -106,8 +136,7 @@ class ContactController extends Controller
         try {    
             $contact->delete();
 
-            $contactCollection = new ContactResource($contact->refresh());
-            return $contactCollection->additional([
+            return response()->json([
                 'success' => true,
                 'code' => 200,
                 'message' => 'Data deleted successfully',
